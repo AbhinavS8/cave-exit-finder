@@ -6,6 +6,8 @@ package net.dominosq.dqcaveexit;
 import net.dominosq.dqcaveexit.block.ModBlocks;
 //import net.dominosq.dqpetrespawn.block.entity.ModBlockEntities;
 import net.dominosq.dqcaveexit.item.ModItems;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -55,6 +57,10 @@ public class DQCaveExit
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
+
+        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.accept(ModItems.CAGED_CANARY);
+        }
 //        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
 //            event.accept(ModBlocks.PET_RESPAWN_ANCHOR_BLOCK.get());
 //        }
