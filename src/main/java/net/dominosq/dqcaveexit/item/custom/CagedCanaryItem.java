@@ -3,7 +3,6 @@ package net.dominosq.dqcaveexit.item.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -16,58 +15,77 @@ import java.util.*;
 
 public class CagedCanaryItem extends Item {
 
-
     public CagedCanaryItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        //get player location
-        //begin search in all directions
-        //heuristic -> ?? do bfs first
-        //general BFS algo
-        //visit set of nearby nodes
-        //add valid ones to queue
-        //exit if goal node (canSeeSky)
 
         Queue<BlockPos> queue = new ArrayDeque<>();
+        Map<BlockPos, BlockPos> parentMap = new HashMap<>(); // child -> parent
         Set<BlockPos> visited = new HashSet<>();
 
-        BlockPos current_pos = player.blockPosition();
-        queue.add(current_pos);
+        BlockPos startPos = player.blockPosition();
+        queue.add(startPos);
+        visited.add(startPos);
+        parentMap.put(startPos, null); // start has no parent
 
+        BlockPos goalPos = null;
+
+        // BFS loop
         while (!queue.isEmpty()) {
             BlockPos pos = queue.poll();
-            visited.add(pos);
 
-            if (level.canSeeSky(pos)) {
-                if (!level.isClientSide) { // Only do this on server
+            if (level.canSeeSkyFromBelowWater(pos)) {
+                goalPos = pos;
+
+                // mark exit block with red wool
+                if (!level.isClientSide) {
                     level.setBlock(pos, Blocks.RED_WOOL.defaultBlockState(), 3);
                 }
+
                 String msg = "Found exit at: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
                 player.sendSystemMessage(Component.literal(msg));
-                return InteractionResultHolder.success(player.getItemInHand(usedHand));
+                break; // exit BFS
             }
 
-            BlockPos up    = pos.above();
-            BlockPos down  = pos.below();
-            BlockPos north = pos.north();
-            BlockPos south = pos.south();
-            BlockPos east  = pos.east();
-            BlockPos west  = pos.west();
-
-            List<BlockPos> neighbors = Arrays.asList(up, down, north, south, east, west);
-
-            for (BlockPos next : neighbors) {
+            // neighbors
+            for (BlockPos next : Arrays.asList(
+                    pos.above(), pos.below(), pos.north(),
+                    pos.south(), pos.east(), pos.west()
+            )) {
                 BlockState state = level.getBlockState(next);
-
-                if (state.isAir() && !visited.contains(next) && current_pos.distToCenterSqr(next.getCenter())<250) {
+                // BFS bounds: air, not visited, within radius
+                if (state.isAir() && !visited.contains(next) && startPos.distToCenterSqr(next.getCenter()) < 20000) {
                     queue.add(next);
                     visited.add(next);
+                    parentMap.put(next, pos); // store parent for path reconstruction
                 }
             }
         }
+
+        // Reconstruct path and place white wool
+        if (goalPos != null && !level.isClientSide) {
+            List<BlockPos> path = new ArrayList<>();
+            BlockPos current = goalPos;
+
+            while (current != null) {
+                path.add(current);
+                current = parentMap.get(current);
+            }
+
+            // path is from goal → start, reverse it if needed
+            Collections.reverse(path);
+
+            // place white wool along the path (skip start and goal if you like)
+            for (BlockPos block : path) {
+                if (!block.equals(startPos) && !block.equals(goalPos)) {
+                    level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                }
+            }
+        }
+
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
     }
 }
