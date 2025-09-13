@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "mobweapons:item/caged_canary"
+    "layer0": "dqcaveexit:item/caged_canary"
   }
 }
