@@ -19,6 +19,9 @@ public class CagedCanaryItem extends Item {
         super(properties);
     }
 
+    //A*???????
+    //AO*??????
+    //heuristic - height
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
 
@@ -32,6 +35,8 @@ public class CagedCanaryItem extends Item {
         parentMap.put(startPos, null); // start has no parent
 
         BlockPos goalPos = null;
+
+        long startTime = System.nanoTime();  // Start timer
 
         // BFS loop
         while (!queue.isEmpty()) {
@@ -78,13 +83,29 @@ public class CagedCanaryItem extends Item {
             // path is from goal → start, reverse it if needed
             Collections.reverse(path);
 
-            // place white wool along the path (skip start and goal if you like)
             for (BlockPos block : path) {
                 if (!block.equals(startPos) && !block.equals(goalPos)) {
                     level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
                 }
             }
         }
+        long endTime = System.nanoTime();    // End timer
+        long duration = (endTime - startTime) / 1_000_000; // ms
+
+        player.sendSystemMessage(Component.literal("Search took " + duration + " ms"));
+
+        //now A* runtime
+        startTime = System.nanoTime();
+
+
+
+
+
+
+
+        endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1_000_000;
+        player.sendSystemMessage(Component.literal("Search took " + duration + " ms"));
 
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
     }
