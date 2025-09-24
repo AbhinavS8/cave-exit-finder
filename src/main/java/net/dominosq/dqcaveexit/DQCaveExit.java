@@ -60,8 +60,10 @@ public class DQCaveExit
 
         if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(ModItems.CAGED_CANARY);
+            event.accept(ModItems.A_CANARY);
         }
-//        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+
+        //        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
 //            event.accept(ModBlocks.PET_RESPAWN_ANCHOR_BLOCK.get());
 //        }
 //        if(event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
