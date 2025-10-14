@@ -1,5 +1,6 @@
 {
-  "item.dqcaveexit.caged_canary": "Caged Canary",
-  "item.dqcaveexit.a_canary": "A* Canary"
-
+  "item.dqcaveexit.dfs_item": "DFS Canary",
+  "item.dqcaveexit.a_star_item": "A* Canary",
+  "item.dqcaveexit.beam_search": "Beam Search Canary",
+  "item.dqcaveexit.bfs_item": "BFS Canary"
 }
