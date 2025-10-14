@@ -59,8 +59,7 @@ public class DQCaveExit
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
 
         if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.CAGED_CANARY);
-            event.accept(ModItems.A_CANARY);
+
         }
 
         //        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {

@@ -9,13 +9,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
-public class Canary2Item extends Item {
+public class AStarItem extends Item {
 
-    public Canary2Item(Properties properties) {
+    public AStarItem(Properties properties) {
         super(properties);
     }
 
@@ -28,8 +27,6 @@ public class Canary2Item extends Item {
 
             long startTime = System.nanoTime();
 
-
-            // --- Improved A* (inline, no separate heuristic function) ---
             class Node {
                 final BlockPos pos;
                 final int g;
@@ -42,7 +39,7 @@ public class Canary2Item extends Item {
 
 // local copies (avoid repeated calls)
             final int maxY = level.getMaxBuildHeight();
-            final double maxDistSq = 40000; // same bound you had
+            final double maxDistSq = 40000;
             final BlockPos aStartPos = player.blockPosition();
 
             Map<BlockPos, BlockPos> aStarParentMap = new HashMap<>();

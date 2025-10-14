@@ -13,9 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
-public class CagedCanaryItem extends Item {
+public class BFSItem extends Item {
 
-    public CagedCanaryItem(Properties properties) {
+    public BFSItem(Properties properties) {
         super(properties);
     }
 
@@ -38,21 +38,18 @@ public class CagedCanaryItem extends Item {
 
             long startTime = System.nanoTime();  // Start timer
 
-            // BFS loop
             while (!queue.isEmpty()) {
                 BlockPos pos = queue.poll();
 
                 if (level.canSeeSkyFromBelowWater(pos)) {
                     goalPos = pos;
 
-                    // mark exit block with red wool
-                    if (!level.isClientSide) {
-                        level.setBlock(pos, Blocks.RED_WOOL.defaultBlockState(), 3);
-                    }
+                    // mark exit
+                    level.setBlock(pos, Blocks.RED_WOOL.defaultBlockState(), 3);
 
                     String msg = "Found exit at: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
                     player.sendSystemMessage(Component.literal(msg));
-                    break; // exit BFS
+                    break;
                 }
 
                 // neighbors
@@ -61,7 +58,7 @@ public class CagedCanaryItem extends Item {
                         pos.south(), pos.east(), pos.west()
                 )) {
                     BlockState state = level.getBlockState(next);
-                    // BFS bounds: air, not visited, within radius
+                    // block radius bound
                     if (state.isAir() && !visited.contains(next) && startPos.distToCenterSqr(next.getCenter()) < 20000) {
                         queue.add(next);
                         visited.add(next);
@@ -71,7 +68,7 @@ public class CagedCanaryItem extends Item {
             }
 
             // Reconstruct path and place white wool
-            if (goalPos != null && !level.isClientSide) {
+            if (goalPos != null) {
                 List<BlockPos> path = new ArrayList<>();
                 BlockPos current = goalPos;
 
@@ -92,7 +89,7 @@ public class CagedCanaryItem extends Item {
             long endTime = System.nanoTime();    // End timer
             long duration = (endTime - startTime) / 1_000_000; // ms
 
-            player.sendSystemMessage(Component.literal("Search took " + duration + " ms"));
+            player.sendSystemMessage(Component.literal("BFS: " + duration + " ms"));
 
         }
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
