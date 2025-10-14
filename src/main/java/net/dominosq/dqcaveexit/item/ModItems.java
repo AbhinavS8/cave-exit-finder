@@ -4,7 +4,9 @@ import net.dominosq.dqcaveexit.DQCaveExit;
 import net.dominosq.dqcaveexit.item.custom.AStarItem;
 import net.dominosq.dqcaveexit.item.custom.BFSItem;
 import net.dominosq.dqcaveexit.item.custom.BeamSearchItem;
+import net.dominosq.dqcaveexit.item.custom.BestFirstItem;
 import net.dominosq.dqcaveexit.item.custom.DFSItem;
+import net.dominosq.dqcaveexit.item.custom.HillClimbingItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -24,6 +26,12 @@ public class ModItems {
 
     public static final DeferredItem<Item> DFS_SEARCH = ITEMS.register("dfs_search",
             () -> new DFSItem(new Item.Properties().durability(1)));
+
+    public static final DeferredItem<Item> HILL_CLIMBING_SEARCH = ITEMS.register("hill_climbing_search",
+            () -> new HillClimbingItem(new Item.Properties().durability(1)));
+
+    public static final DeferredItem<Item> BEST_FIRST_SEARCH = ITEMS.register("best_first_search",
+            () -> new BestFirstItem(new Item.Properties().durability(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

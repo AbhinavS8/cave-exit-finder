@@ -14,16 +14,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.*;
 
 public class BeamSearchItem extends Item {
+    
+    private final int beamWidth;
 
     public BeamSearchItem(Properties properties) {
+        this(properties, 30);
+    }
+
+    public BeamSearchItem(Properties properties, int beamWidth) {
         super(properties);
+        this.beamWidth = beamWidth;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide) {
-
-            int beamWidth = 30; // Adjust this to tradeoff between speed and coverage
 
             List<BlockPos> currentBeam = new ArrayList<>();
             Map<BlockPos, BlockPos> parentMap = new HashMap<>();
@@ -73,9 +78,10 @@ public class BeamSearchItem extends Item {
                 if (goalPos != null) break;
 
                 // sort candidates by heuristic (highest Y first)
-                nextBeamCandidates.sort(Comparator.comparingInt((BlockPos pos) -> pos.getY()).reversed());                // keep only top `beamWidth` nodes
-                currentBeam = nextBeamCandidates.size() > beamWidth ?
-                        nextBeamCandidates.subList(0, beamWidth) :
+                nextBeamCandidates.sort(Comparator.comparingInt((BlockPos pos) -> pos.getY()).reversed());
+                // keep only top `beamWidth` nodes
+                currentBeam = nextBeamCandidates.size() > this.beamWidth ?
+                        nextBeamCandidates.subList(0, this.beamWidth) :
                         nextBeamCandidates;
             }
 
