@@ -20,6 +20,7 @@ public class DFSItem extends Item {
     }
 
 
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide) {
@@ -65,6 +66,7 @@ public class DFSItem extends Item {
             long duration = (endTime - startTime) / 1_000_000; // ms
 
             player.sendSystemMessage(Component.literal("DFS: " + duration + " ms"));
+            // Note: DFS doesn't track the path taken, so no path cost calculation is possible
 
         }
         return InteractionResultHolder.success(player.getItemInHand(usedHand));

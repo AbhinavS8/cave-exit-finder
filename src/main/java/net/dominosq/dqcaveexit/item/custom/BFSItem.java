@@ -19,9 +19,22 @@ public class BFSItem extends Item {
         super(properties);
     }
 
-    //A*???????
-    //AO*??????
-    //heuristic - height
+    private int getMoveCost(Level level, BlockPos to) {
+        int cost = 1;
+
+        for (BlockPos offset : BlockPos.betweenClosed(-1, -1, -1, 1, 1, 1)) {
+            if (level.getBlockState(to.offset(offset)).is(Blocks.LAVA)) {
+                cost += 16;
+                break;
+            }
+            if (level.getBlockState(to.offset(offset)).is(Blocks.GRAVEL)) {
+                cost+= 1;
+            }
+        }
+
+        return cost;
+    }
+    
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide) {
@@ -80,11 +93,20 @@ public class BFSItem extends Item {
                 // path is from goal → start, reverse it if needed
                 Collections.reverse(path);
 
+                // Calculate total path cost
+                int totalPathCost = 0;
+                for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
+                    totalPathCost += getMoveCost(level, path.get(i));
+                }
+
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
                         level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
                     }
                 }
+
+                // Report total path cost
+                player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
             }
             long endTime = System.nanoTime();    // End timer
             long duration = (endTime - startTime) / 1_000_000; // ms

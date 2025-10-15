@@ -21,6 +21,22 @@ public class HillClimbingItem extends Item {
         super(properties);
     }
 
+    private int getMoveCost(Level level, BlockPos to) {
+        int cost = 1;
+
+        for (BlockPos offset : BlockPos.betweenClosed(-1, -1, -1, 1, 1, 1)) {
+            if (level.getBlockState(to.offset(offset)).is(Blocks.LAVA)) {
+                cost += 16;
+                break;
+            }
+            if (level.getBlockState(to.offset(offset)).is(Blocks.GRAVEL)) {
+                cost+= 1;
+            }
+        }
+
+        return cost;
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide) {
@@ -32,6 +48,7 @@ public class HillClimbingItem extends Item {
 
             long startTime = System.nanoTime();
             int steps = 0;
+            int totalPathCost = 0;
 
             while (steps < MAX_STEPS) {
                 steps++;
@@ -76,6 +93,7 @@ public class HillClimbingItem extends Item {
 
                 // move to next
                 visited.add(bestNeighbor);
+                totalPathCost += getMoveCost(level, bestNeighbor);
                 current = bestNeighbor;
 
                 // mark visited
@@ -89,6 +107,7 @@ public class HillClimbingItem extends Item {
             player.sendSystemMessage(Component.literal(
                     "Hill Climbing finished in " + duration + " ms"
             ));
+            player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
         }
 
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
