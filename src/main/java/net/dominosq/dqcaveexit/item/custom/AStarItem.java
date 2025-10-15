@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -21,8 +22,25 @@ public class AStarItem extends Item {
     //A*???????
     //AO*??????
     //heuristic - height
+    private int getMoveCost(Level level, BlockPos to) {
+        int cost = 1;
+
+        for (BlockPos offset : BlockPos.betweenClosed(-1, -1, -1, 1, 1, 1)) {
+            if (level.getBlockState(to.offset(offset)).is(Blocks.LAVA)) {
+                cost += 16;
+                break;
+            }
+            if (level.getBlockState(to.offset(offset)).is(Blocks.GRAVEL)) {
+                cost+= 1;
+            }
+        }
+
+        return cost;
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+
         if (!level.isClientSide) {
 
             long startTime = System.nanoTime();
@@ -75,7 +93,7 @@ public class AStarItem extends Item {
 
                 if (level.canSeeSkyFromBelowWater(current)) {
                     aGoalPos = current;
-                    if (!level.isClientSide) level.setBlock(current, Blocks.RED_WOOL.defaultBlockState(), 3);
+                    level.setBlock(current, Blocks.RED_WOOL.defaultBlockState(), 3);
                     player.sendSystemMessage(Component.literal(
                             "A* exit found at: " + current.getX() + ", " + current.getY() + ", " + current.getZ()
                     ));
@@ -90,7 +108,7 @@ public class AStarItem extends Item {
                     if (aStartPos.distToCenterSqr(next.getCenter()) > maxDistSq) continue;
                     if (closedSet.contains(next)) continue;
 
-                    int tentativeG = node.g + 1; // step cost
+                    int tentativeG = node.g + getMoveCost(level, next); // use actual move cost
 
                     int prevG = gScore.getOrDefault(next, Integer.MAX_VALUE);
                     if (tentativeG < prevG) {
@@ -107,8 +125,8 @@ public class AStarItem extends Item {
                 }
             }
 
-// Reconstruct path as before
-            if (aGoalPos != null && !level.isClientSide) {
+// Reconstruct path and calculate total cost
+            if (aGoalPos != null) {
                 List<BlockPos> path = new ArrayList<>();
                 BlockPos cur = aGoalPos;
                 while (cur != null) {
@@ -116,11 +134,21 @@ public class AStarItem extends Item {
                     cur = aStarParentMap.get(cur);
                 }
                 Collections.reverse(path);
+                
+                // Calculate total path cost
+                int totalPathCost = 0;
+                for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
+                    totalPathCost += getMoveCost(level, path.get(i));
+                }
+                
+                // Place path blocks
                 for (BlockPos block : path) {
                     if (!block.equals(aStartPos) && !block.equals(aGoalPos)) {
                         level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
                     }
                 }
+                
+                player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
             }
 
 // Diagnostics: nodes expanded and PQ size
