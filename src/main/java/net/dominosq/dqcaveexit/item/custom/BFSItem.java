@@ -72,7 +72,7 @@ public class BFSItem extends Item {
                 )) {
                     BlockState state = level.getBlockState(next);
                     // block radius bound
-                    if (state.isAir() && !visited.contains(next) && startPos.distToCenterSqr(next.getCenter()) < 20000) {
+                    if (state.isAir() && !visited.contains(next)) { // && startPos.distToCenterSqr(next.getCenter()) < 20000
                         queue.add(next);
                         visited.add(next);
                         parentMap.put(next, pos); // store parent for path reconstruction
@@ -101,7 +101,7 @@ public class BFSItem extends Item {
 
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
-                        level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                        level.setBlock(block, Blocks.BLUE_CONCRETE.defaultBlockState(), 3);
                     }
                 }
 

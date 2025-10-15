@@ -74,8 +74,8 @@ public class BestFirstItem extends Item {
                         current.east(), current.west()
                 )) {
                     BlockState state = level.getBlockState(next);
-                    if (state.isAir() && !visited.contains(next)
-                            && startPos.distToCenterSqr(next.getCenter()) < 20000) {
+                    if (state.isAir() && !visited.contains(next) //&& startPos.distToCenterSqr(next.getCenter()) < 20000
+                            ) {
 
                         openList.add(next);
                         visited.add(next);
@@ -102,7 +102,7 @@ public class BestFirstItem extends Item {
 
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
-                        level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                        level.setBlock(block, Blocks.LIME_CONCRETE.defaultBlockState(), 3);
                     }
                 }
 

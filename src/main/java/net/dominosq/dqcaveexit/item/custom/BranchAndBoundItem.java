@@ -83,6 +83,8 @@ public class BranchAndBoundItem extends Item {
             if (goalPos != null) {
                 List<BlockPos> path = new ArrayList<>();
                 BlockPos cur = goalPos;
+
+                level.setBlock(goalPos, Blocks.RED_WOOL.defaultBlockState(), 3);
                 while (cur != null) {
                     path.add(cur);
                     cur = parentMap.get(cur);
@@ -94,7 +96,7 @@ public class BranchAndBoundItem extends Item {
                 }
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
-                        level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                        level.setBlock(block, Blocks.YELLOW_CONCRETE.defaultBlockState(), 3);
                     }
                 }
                 player.sendSystemMessage(Component.literal("Branch and Bound exit at: " + goalPos.getX() + ", " + goalPos.getY() + ", " + goalPos.getZ()));

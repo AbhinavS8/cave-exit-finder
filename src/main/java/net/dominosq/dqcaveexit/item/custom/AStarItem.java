@@ -47,7 +47,7 @@ public class AStarItem extends Item {
             class Node {
                 final BlockPos pos;
                 final int g;
-                final double f;
+                final double f; // g + h
 
                 Node(BlockPos pos, int g, double f) {
                     this.pos = pos; this.g = g; this.f = f;
@@ -133,20 +133,30 @@ public class AStarItem extends Item {
                     cur = aStarParentMap.get(cur);
                 }
                 Collections.reverse(path);
-
+                
                 // Calculate total path cost
                 int totalPathCost = 0;
                 for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
                     totalPathCost += getMoveCost(level, path.get(i));
                 }
-
+                
                 // Place path blocks
                 for (BlockPos block : path) {
                     if (!block.equals(aStartPos) && !block.equals(aGoalPos)) {
-                        level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+//                        ((ServerLevel) level).sendParticles(
+//                                ParticleTypes.END_ROD,
+//                                block.getX() + 0.5,
+//                                block.getY() + 1,
+//                                block.getZ() + 0.5,
+//                                1, // count
+//                                0.0, 0.0, 0.0, // offsets
+//                                0.0 // speed
+//                        );
+                        level.setBlock(block, Blocks.WHITE_CONCRETE.defaultBlockState(), 3);
+
                     }
                 }
-
+                
                 player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
             }
 

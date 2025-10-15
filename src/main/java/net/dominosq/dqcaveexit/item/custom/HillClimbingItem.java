@@ -15,7 +15,7 @@ import java.util.*;
 
 public class HillClimbingItem extends Item {
 
-    private static final int MAX_STEPS = 500;
+    private static final int MAX_STEPS = 10000;
 
     public HillClimbingItem(Properties properties) {
         super(properties);
@@ -98,7 +98,7 @@ public class HillClimbingItem extends Item {
 
                 // mark visited
                 if (!current.equals(startPos)) {
-                    level.setBlock(current, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                    level.setBlock(current, Blocks.BLACK_CONCRETE.defaultBlockState(), 3);
                 }
             }
 

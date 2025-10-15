@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "dqcaveexit:item/a_canary"
+    "layer0": "dqcaveexit:item/dfs_canary"
   }
 }

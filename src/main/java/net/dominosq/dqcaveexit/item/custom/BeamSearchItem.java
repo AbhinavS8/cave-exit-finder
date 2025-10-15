@@ -119,7 +119,7 @@ public class BeamSearchItem extends Item {
 
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
-                        level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
+                        level.setBlock(block, Blocks.GREEN_CONCRETE.defaultBlockState(), 3);
                     }
                 }
 
