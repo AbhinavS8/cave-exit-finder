@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dqcaveexit:item/branch_and_bound_canary"
+  }
+}

@@ -4,5 +4,6 @@
   "item.dqcaveexit.beam_search": "Beam Search Canary",
   "item.dqcaveexit.bfs_item": "BFS Canary",
   "item.dqcaveexit.hill_climbing_search": "Hill Climbing Canary",
-  "item.dqcaveexit.best_first_search": "Best-First Search Canary"
+  "item.dqcaveexit.best_first_search": "Best-First Search Canary",
+  "item.dqcaveexit.branch_and_bound_search": "Branch and Bound Canary"
 }

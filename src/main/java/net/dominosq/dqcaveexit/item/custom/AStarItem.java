@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -48,7 +47,7 @@ public class AStarItem extends Item {
             class Node {
                 final BlockPos pos;
                 final int g;
-                final double f; // g + h
+                final double f;
 
                 Node(BlockPos pos, int g, double f) {
                     this.pos = pos; this.g = g; this.f = f;
@@ -134,20 +133,20 @@ public class AStarItem extends Item {
                     cur = aStarParentMap.get(cur);
                 }
                 Collections.reverse(path);
-                
+
                 // Calculate total path cost
                 int totalPathCost = 0;
                 for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
                     totalPathCost += getMoveCost(level, path.get(i));
                 }
-                
+
                 // Place path blocks
                 for (BlockPos block : path) {
                     if (!block.equals(aStartPos) && !block.equals(aGoalPos)) {
                         level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
                     }
                 }
-                
+
                 player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
             }
 

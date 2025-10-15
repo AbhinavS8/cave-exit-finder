@@ -113,7 +113,7 @@ public class BeamSearchItem extends Item {
 
                 // Calculate total path cost
                 int totalPathCost = 0;
-                for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
+                for (int i = 1; i < path.size(); i++) {
                     totalPathCost += getMoveCost(level, path.get(i));
                 }
 
@@ -129,7 +129,7 @@ public class BeamSearchItem extends Item {
 
             long endTime = System.nanoTime();
             long duration = (endTime - startTime) / 1_000_000;
-            player.sendSystemMessage(Component.literal("Beam Search took " + duration + " ms"));
+            player.sendSystemMessage(Component.literal("Beam Search: " + duration + " ms"));
         }
 
         return InteractionResultHolder.success(player.getItemInHand(usedHand));

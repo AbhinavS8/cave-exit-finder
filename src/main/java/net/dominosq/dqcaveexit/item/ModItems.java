@@ -5,6 +5,7 @@ import net.dominosq.dqcaveexit.item.custom.AStarItem;
 import net.dominosq.dqcaveexit.item.custom.BFSItem;
 import net.dominosq.dqcaveexit.item.custom.BeamSearchItem;
 import net.dominosq.dqcaveexit.item.custom.BestFirstItem;
+import net.dominosq.dqcaveexit.item.custom.BranchAndBoundItem;
 import net.dominosq.dqcaveexit.item.custom.DFSItem;
 import net.dominosq.dqcaveexit.item.custom.HillClimbingItem;
 import net.minecraft.world.item.Item;
@@ -32,6 +33,9 @@ public class ModItems {
 
     public static final DeferredItem<Item> BEST_FIRST_SEARCH = ITEMS.register("best_first_search",
             () -> new BestFirstItem(new Item.Properties().durability(1)));
+
+    public static final DeferredItem<Item> BRANCH_AND_BOUND_SEARCH = ITEMS.register("branch_and_bound_search",
+            () -> new BranchAndBoundItem(new Item.Properties().durability(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

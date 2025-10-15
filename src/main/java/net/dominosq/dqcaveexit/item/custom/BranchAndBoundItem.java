@@ -9,112 +9,104 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+
 import java.util.*;
 
-public class BestFirstItem extends Item {
-
-    public BestFirstItem(Properties properties) {
+public class BranchAndBoundItem extends Item {
+    public BranchAndBoundItem(Properties properties) {
         super(properties);
     }
 
     private int getMoveCost(Level level, BlockPos to) {
         int cost = 1;
-
         for (BlockPos offset : BlockPos.betweenClosed(-1, -1, -1, 1, 1, 1)) {
             if (level.getBlockState(to.offset(offset)).is(Blocks.LAVA)) {
                 cost += 16;
                 break;
             }
             if (level.getBlockState(to.offset(offset)).is(Blocks.GRAVEL)) {
-                cost+= 1;
+                cost += 1;
             }
         }
-
         return cost;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide) {
-
-            PriorityQueue<BlockPos> openList = new PriorityQueue<>(
-                    Comparator.comparingInt((BlockPos pos) -> -pos.getY()) // higher Y = higher priority
-            );
-
-            Map<BlockPos, BlockPos> parentMap = new HashMap<>();
-            Set<BlockPos> visited = new HashSet<>();
-
             BlockPos startPos = player.blockPosition();
-            openList.add(startPos);
-            visited.add(startPos);
+            Set<BlockPos> extendedList = new HashSet<>();
+            Map<BlockPos, BlockPos> parentMap = new HashMap<>();
+            Map<BlockPos, Integer> costMap = new HashMap<>();
+            PriorityQueue<BlockPos> open = new PriorityQueue<>(Comparator.comparingInt(costMap::get));
+
+            open.add(startPos);
+            costMap.put(startPos, 0);
             parentMap.put(startPos, null);
 
             BlockPos goalPos = null;
+            int bestCost = Integer.MAX_VALUE;
 
             long startTime = System.nanoTime();
 
-            while (!openList.isEmpty()) {
-                BlockPos current = openList.poll();
+            while (!open.isEmpty()) {
+                BlockPos current = open.poll();
+                int currentCost = costMap.get(current);
+                extendedList.add(current);
 
-                // Check for goal
                 if (level.canSeeSkyFromBelowWater(current)) {
-                    goalPos = current;
-                    level.setBlock(current, Blocks.RED_WOOL.defaultBlockState(), 3);
-                    player.sendSystemMessage(Component.literal(
-                            "Best-First Search exit found at: " + current.getX() + ", " + current.getY() + ", " + current.getZ()
-                    ));
-                    break;
+                    if (currentCost < bestCost) {
+                        bestCost = currentCost;
+                        goalPos = current;
+                    }
+                    continue;
                 }
 
-                // Explore neighbors
                 for (BlockPos next : Arrays.asList(
                         current.above(), current.below(),
                         current.north(), current.south(),
                         current.east(), current.west()
                 )) {
-                    BlockState state = level.getBlockState(next);
-                    if (state.isAir() && !visited.contains(next)
-                            && startPos.distToCenterSqr(next.getCenter()) < 20000) {
-
-                        openList.add(next);
-                        visited.add(next);
+                    if (!level.getBlockState(next).isAir()) continue;
+                    if (extendedList.contains(next)) continue;
+                    int moveCost = getMoveCost(level, next);
+                    int newCost = currentCost + moveCost;
+                    if (newCost >= bestCost) continue; // prune paths worse than best found
+                    if (!costMap.containsKey(next) || newCost < costMap.get(next)) {
+                        costMap.put(next, newCost);
                         parentMap.put(next, current);
+                        open.add(next);
                     }
                 }
             }
 
-            // Reconstruct path
             if (goalPos != null) {
                 List<BlockPos> path = new ArrayList<>();
-                BlockPos current = goalPos;
-                while (current != null) {
-                    path.add(current);
-                    current = parentMap.get(current);
+                BlockPos cur = goalPos;
+                while (cur != null) {
+                    path.add(cur);
+                    cur = parentMap.get(cur);
                 }
                 Collections.reverse(path);
-
-                // Calculate total path cost
                 int totalPathCost = 0;
-                for (int i = 1; i < path.size(); i++) { // Start from 1 to skip start position
+                for (int i = 1; i < path.size(); i++) {
                     totalPathCost += getMoveCost(level, path.get(i));
                 }
-
                 for (BlockPos block : path) {
                     if (!block.equals(startPos) && !block.equals(goalPos)) {
                         level.setBlock(block, Blocks.WHITE_WOOL.defaultBlockState(), 3);
                     }
                 }
-
-                // Report total path cost
+                player.sendSystemMessage(Component.literal("Branch and Bound exit at: " + goalPos.getX() + ", " + goalPos.getY() + ", " + goalPos.getZ()));
                 player.sendSystemMessage(Component.literal("Total path cost: " + totalPathCost));
+            } else {
+                player.sendSystemMessage(Component.literal("No exit found with branch and bound."));
             }
 
             long endTime = System.nanoTime();
             long duration = (endTime - startTime) / 1_000_000;
-            player.sendSystemMessage(Component.literal("Best-First Search took " + duration + " ms"));
+            player.sendSystemMessage(Component.literal("Branch and Bound took " + duration + " ms"));
         }
-
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
     }
 }
